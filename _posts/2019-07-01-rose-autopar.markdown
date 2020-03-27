@@ -5,7 +5,7 @@ author: "@ouankou"
 date:   2019-07-01
 categories: beginner
 tags: [rose,openmp,autopar,parallelization]
-image: fcc_docker:1804
+image: freecompilercamp/pwc:18.04
 ---
 
 # Tips:
