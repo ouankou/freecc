@@ -57,7 +57,7 @@ plugins_dir:
   - jekyll-paginate
 
 # Play with Docker
-pwdurl: https://lab.kaffeineko.com
+pwdurl: http://lab.kaffeineko.com
 #pwdurl: https://pwc.ouankou.com
 #pwdurl: http://lab.freecompilercamp.org
 #pwdurl: http://pwd.freecompilercamp.org
