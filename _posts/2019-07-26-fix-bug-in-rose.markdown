@@ -5,7 +5,7 @@ author: "@ouankou"
 date:   2019-07-26
 categories: beginner
 tags: [rose,openmp,lowering,parallelization]
-image: fcc_docker:test
+image: freecompilercamp/pwc:rose-bug
 ---
 
 # Tips:
