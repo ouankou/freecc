@@ -38,7 +38,7 @@ Plese execute the following code to check out a version of ROSE with a bug:
 
 ```.term1
 cd $ROSE_SRC &&
-git checkout -b v0.9.11.138 https://github.com/rose-compiler/rose.git
+git checkout -b v0.9.11.138
 ```
 
 ## B. Reproduce the Bug
