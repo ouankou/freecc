@@ -5,7 +5,7 @@ author: "@gleisonsdm"
 date:   2019-08-02
 categories: beginner
 tags: [openmp,plugin,clang]
-image: freecompilercamp/pwc:18.04
+image: freecompilercamp/pwc:16.04
 ---
 
 # Tips:
