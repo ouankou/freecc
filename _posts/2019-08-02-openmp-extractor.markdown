@@ -5,7 +5,7 @@ author: "@gleisonsdm"
 date:   2019-08-02
 categories: beginner
 tags: [openmp,plugin,clang]
-image: freecompilercamp/pwc:1.0
+image: freecompilercamp/pwc:18.04
 ---
 
 # Tips:
@@ -37,25 +37,25 @@ This tool is an implementation of an external clang plugin. It can parse the sou
 
 First, please clone the source code:
 ```.term1
-git clone https://github.com/gleisonsdm/OpenMP-Extractor.git /usr/src/OMP_Extractor
+git clone https://github.com/gleisonsdm/OpenMP-Extractor.git
 ```
 
-Create ```OMP_Extractor``` build folder.
+Create ```OpenMP-Extractor``` build folder.
 ```.term1
-mkdir /usr/src/OMP_Extractor/lib
+mkdir OpenMP-Extractor/lib
 ```
 
-Enter ```OMP_Extractor``` build folder.
+Enter ```OpenMP-Extractor``` build folder.
 ```.term1
-cd /usr/src/OMP_Extractor/lib
+cd OpenMP-Extractor/lib
 ```
 
 Create a makefile using cmake.
 ```.term1
-CXX=g++ cmake -DLLVM_DIR=${LLVM_INSTALL}/lib/cmake/llvm /usr/src/OMP_Extractor/clangPlugin/
+CXX=g++ cmake -DLLVM_DIR=${LLVM_INSTALL}/lib/cmake/llvm $HOME/OpenMP-Extractor/clangPlugin/
 ```
 
-Then the binaries of this library will be installed to ```/usr/src/OMP_Extractor/lib```.
+Then the binaries of this library will be installed to ```$HOME/OpenMP-Extractor/lib```.
 ```.term1
 make -j4
 ```
@@ -84,7 +84,7 @@ EOF
 Run OpenMP Extractor to run the plugin, you should load the library to run the analysis on clang.
 To send flags to clang, is necessary to use "-Xclang" before each argument.
  - -load: Necessary to load libraries on clang.
- - /usr/src/OMP_Extractor/lib/ompextractor/libCLANGOMPExtractor.so: This is the library containing the plugin.
+ - $HOME/OpenMP-Extractor/lib/ompextractor/libCLANGOMPExtractor.so: This is the library containing the plugin.
  - -add-plugin: Flag to add a plugin to clang.
  - -extract-omp: This flag asks clang to run the plugin.
  - -fopenmp: Turn on OpenMP support in clang's frontend.
@@ -94,7 +94,7 @@ To send flags to clang, is necessary to use "-Xclang" before each argument.
  - -fsyntax-only : Prevents the compiler to write an object file. We use this avoid the the creation of an intermediate file, as it is not necessary.
  
 ```.term1
-clang -Xclang -load -Xclang /usr/src/OMP_Extractor/lib/ompextractor/libCLANGOMPExtractor.so -Xclang -add-plugin -Xclang -extract-omp -fopenmp -g -O0 -c -fsyntax-only test.c
+clang -Xclang -load -Xclang $HOME/OpenMP-Extractor/lib/ompextractor/libCLANGOMPExtractor.so -Xclang -add-plugin -Xclang -extract-omp -fopenmp -g -O0 -c -fsyntax-only test.c
 ```
 
 Checkout if the Json file was created:
@@ -115,7 +115,7 @@ In the end, the Json file stores loop information extracted by Clang/LLVM.
 
 First, let's open the plugin source file. The plugin was build in one for simplicity.
 ```.term1
-vim /usr/src/OMP_Extractor/clangPlugin/ompextractor/ompextractor.cpp
+vim $HOME/OpenMP-Extractor/clangPlugin/ompextractor/ompextractor.cpp
 ```
 
 Then, modify the code to recognize the new directives or clauses. This tutorial will show how to add suport to the ```num_threads``` clause. To modify the file, go to the line 357 (or before the comment "/*Final or If clauses are marked as multiversioned.*/" in the function "ClassifyClause") and insert the following code:
@@ -165,18 +165,13 @@ int main() {
 EOF
 ```
 
-Enter ```OMP_Extractor``` build folder.
-```.term1
-cd /usr/src/OMP_Extractor/lib
-```
-
-Rebuild the binaries of this library within ```/usr/src/OMP_Extractor/lib```.
+Rebuild the binaries of this library within ```OpenMP-Extractor/lib```.
 ```.term1
 make -j4
 ```
 To run the example, type the following command line: 
 ```.term1
-clang -Xclang -load -Xclang /usr/src/OMP_Extractor/lib/ompextractor/libCLANGOMPExtractor.so -Xclang -add-plugin -Xclang -extract-omp -fopenmp -g -O0 -c -fsyntax-only test.c
+clang -Xclang -load -Xclang $HOME/OpenMP-Extractor/lib/ompextractor/libCLANGOMPExtractor.so -Xclang -add-plugin -Xclang -extract-omp -fopenmp -g -O0 -c -fsyntax-only test.c
 ```
 
 Checkout if the Json file was created:
@@ -188,5 +183,8 @@ The last step is check the output:
 ```.term1
 cat test.c.json
 ```
-
+You can see the num_threads(5) is recognized and encoded into the json file as follows:
+```
+25 "num threads":"5",
+```
 Well done, you got it. 
