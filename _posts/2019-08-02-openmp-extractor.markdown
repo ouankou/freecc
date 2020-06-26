@@ -5,7 +5,7 @@ author: "@gleisonsdm"
 date:   2019-08-02
 categories: beginner
 tags: [openmp,plugin,clang]
-image: freecompilercamp/pwc:16.04
+image: freecompilercamp/pwc:llvm10
 ---
 
 # Tips:
@@ -37,12 +37,12 @@ This tool is an implementation of an external clang plugin. It can parse the sou
 
 First, please clone the source code:
 ```.term1
-git clone https://github.com/gleisonsdm/OpenMP-Extractor.git
+git clone https://github.com/freeCompilerCamp/code-for-llvm-tutorials.git
 ```
 
 Create ```OpenMP-Extractor``` build folder.
 ```.term1
-mkdir OpenMP-Extractor/lib
+mkdir -p OpenMP-Extractor/lib
 ```
 
 Enter ```OpenMP-Extractor``` build folder.
@@ -52,7 +52,7 @@ cd OpenMP-Extractor/lib
 
 Create a makefile using cmake.
 ```.term1
-CXX=g++ cmake -DLLVM_DIR=${LLVM_INSTALL}/lib/cmake/llvm $HOME/OpenMP-Extractor/clangPlugin/
+CXX=g++ cmake -DLLVM_DIR=${LLVM_INSTALL}/lib/cmake/llvm $HOME/code-for-llvm-tutorials/OpenMP-Extractor/
 ```
 
 Then the binaries of this library will be installed to ```$HOME/OpenMP-Extractor/lib```.
@@ -115,7 +115,7 @@ In the end, the Json file stores loop information extracted by Clang/LLVM.
 
 First, let's open the plugin source file. The plugin was build in one for simplicity.
 ```.term1
-vim $HOME/OpenMP-Extractor/clangPlugin/ompextractor/ompextractor.cpp
+vim $HOME/code-for-llvm-tutorials/OpenMP-Extractor/ompextractor/ompextractor.cpp
 ```
 
 Then, modify the code to recognize the new directives or clauses. This tutorial will show how to add suport to the ```num_threads``` clause. To modify the file, go to the line 357 (or before the comment "/*Final or If clauses are marked as multiversioned.*/" in the function "ClassifyClause") and insert the following code:
