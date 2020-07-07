@@ -70,10 +70,9 @@ layout: default
           console.log('In _config.yml, the site url does not match the url you are serving from, so no analytics were pushed.')
       }
     {% endif %}
-    if ({{page.image}} == '') {
-      var docker_image = {{site.default_docker_image}};
-    } else {
-      var docker_image = {{page.image}};
+    var docker_image = '{{page.image}}';
+    if (docker_image == '') {
+      docker_image = '{{site.default_docker_image}}';
     };
     pwd.newSession([{selector: '.term1'}, {selector: '.term2'}, {selector: '.term3'}], {baseUrl: '{{site.pwdurl}}', ImageName: docker_image});
     $(".panel-left").resizable({
