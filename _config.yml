@@ -62,3 +62,4 @@ plugins_dir:
 pwdurl: http://lab.freecompilercamp.org
 #pwdurl: http://pwd.freecompilercamp.org
 
+default_docker_image: freecompilercamp/pwc:full
