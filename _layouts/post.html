@@ -74,7 +74,11 @@ layout: default
     if (docker_image == '') {
       docker_image = '{{site.default_docker_image}}';
     };
-    pwd.newSession([{selector: '.term1'}, {selector: '.term2'}, {selector: '.term3'}], {baseUrl: '{{site.pwdurl}}', ImageName: docker_image});
+    var pwcUrl = '{{page.pwc}}';
+    if (pwcUrl == '') {
+      pwcUrl = '{{site.pwdurl}}';
+    };
+    pwd.newSession([{selector: '.term1'}, {selector: '.term2'}, {selector: '.term3'}], {baseUrl: pwcUrl, ImageName: docker_image});
     $(".panel-left").resizable({
         handleSelector: ".splitter",
         resizeHeight: false,
