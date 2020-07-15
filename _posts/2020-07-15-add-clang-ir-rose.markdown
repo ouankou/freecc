@@ -138,84 +138,42 @@ rose-compiler: /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang
 Aborted (core dumped)
 ```
 
+At the specified line 1488 of file `clang-frontend-stmt.cpp`, we can see that it's an unconditional failure, which we can remove for now by deleting this particular line.
 
-
----
-
-## Step 1 - Locate and go to clang directory
-First, let's enter the `LLVM` source folder to look around. There are a bunch of files and directories there. For now only interested in the Clang sub-project of the LLVM source code. In this tutorials's environment, the Clang project is located at `$LLVM_SRC/tools/clang`. In your machine you should locate the Clang project and switch to that directory.
-```.term1
-cd $LLVM_SRC/tools/clang
+```
+ROSE_ASSERT(FAIL_TODO == 0); // TODO
 ```
 
-## Step 2 - Define the new directive
-The first thing that we should do is let the compiler identify a new directive, which in this tutorial is `metadirective`.
-
-Now let us update the compiler, such that it just identifies the new directive. For this we need to update two files:
-1. *OpenMPKinds.def* -- which defines the list of supported OpenMP directives and clauses.
-2. *ParseOpenMP.cpp* -- which implements parsing of all OpenMP directives and clauses.
-
-To define the new directive we will modify the file `OpenMPKinds.def`, located in `include/clang/Basic`. So open the file using your favorite editor. In this tutorial we will be using the vim editor.
-```.term1
-vim include/clang/Basic/OpenMPKinds.def
-```
-
-Now in this file go to line 237 (or anywhere before `#undef OPENMP_DIRECTIVE_EXT` is called) and add the following new line after it:
-```
-OPENMP_DIRECTIVE_EXT(metadirective, "metadirective")
-```
-
-In our current state we are not dealing with any clause associated with metadirective, so we do not need to define `OPENMP_METADIRECTIVE_CLAUSE`. We will learn about adding clause later in the tutorial.
-
-This way we are able to define the new directive `#pragma omp metadirective`.
-
-## Step 3 - Implement parsing
-Before parsing the lexer will split the source code into multiple tokens. The parser will read these tokens and give a structural representation to them. To implement the parsing of this new directive we need to modify the file `ParseOpenMP.cpp`, located in `lib/Parse`. So open the file using your favorite editor.
-```.term1
-vim lib/Parse/ParseOpenMP.cpp
-```
-
-Now in this file go to the function `ParseOpenMPDeclarativeOrExecutableDirective`, identify the switch statement (line 997) and add a new case for `OMPD_metadirective` anyweher inside of the body of the switch statement. Here we will print out <span style="color:blue">**METADIRECTIVE is caught**</span> and then consume the token.
-```
-  case OMPD_metadirective: {
-    llvm::errs() <<"METADIRECTIVE is caught\n";
-    ConsumeToken();
-    ConsumeAnnotationToken();
-    break;
-  }
-```
-
-That's it for now. Now let us build and test our code.
-
-## Step 4 - Building LLVM and testing code
-To build `LLVM` go to the `LLVM_BUILD` directory and run make. We are redirecting the standard output of make to /dev/null to have a clean output. Warning and error messages will still show up if there are any.
+Now let's compile ROSE the third time.
 
 ```.term1
-cd $LLVM_BUILD && make -j8 install > /dev/null
+cd $ROSE_BUILD
+make core -j4
+make install-core
+cd ~
+rose-compiler hello-world.c -o hello-world
 ```
 
-This build step may take a few minutes. You might get a couple of warnings about `enumeration value 'ompd_metadirective' not handled in switch`. Please ignore these warnings for now. we will handle them later. Once the code builds successfully and is installed, its time to test a small program. Let us create a new test file:
+Finally! We successfully build both ROSE and the hello-world program!
+Under current folder, an executable named `hello-world` and a generated source file will be shown.
 
 ```.term1
-cat <<EOF > meta.c
-int main()
-{
-#pragma omp metadirective 
-    for(int i=0; i<10; i++)
-    ;
-    return 0;
-}
-EOF
+ls hello-world
+ls rose_hello-world.c
 ```
 
-Now you have a new test file `meta.c` which uses the `metadirective` directive. 
+Running `hello-world` will print a message `Hello World from C`.
 
-Build this file using your Clang compiler.
 
 ```.term1
-clang -fopenmp meta.c
+./hello-world
 ```
 
-you should get an output `metadirective is caught`. 
+Check the generated `rose_hello-world.c` and it should display the same content as the original `hello-world.c` except minor format difference.
 
-<span style="color:green">**Congratulations**</span> you were successfully able to add and identify a new directive to openmp in Clang compiler.
+```.term1
+cat rose_hello-world.c
+```
+
+
+<span style="color:green">**Congratulations**</span> you were successfully able to support a new Clang IR in ROSE compiler.
