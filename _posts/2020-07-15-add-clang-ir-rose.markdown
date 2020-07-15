@@ -30,26 +30,27 @@ However, the Clang support in ROSE compiler is still at the early stage. There c
 In this tutorial we will cover how to support a new Clang IR in ROSE compiler. The goal of this tutorial is to compile a hello-world program successfully.
 
 
-The following example is the hello-world program automatically generated while building ROSE compiler. The file `hello-world.c` is located in `$ROSE_BUILD/src`.
+The following example is the hello-world program used in this tutorial.
 
-```
+```.term1
+cat << EOF > hello-world.c
 #include <stdio.h>
 int main() {
    printf("Hello World from C\n");
    return 0;
 }
+EOF
 ```
 
+Check the create source code and you should see the same content as above.
+
 ```.term1
-cd $ROSE_BUILD/src
 cat hello-world.c
 ```
 
-You should see the same content as above.
 By default, ROSE compiler with Clang frontend can't compile this example due to unsupported Clang IR. While traversing the Clang AST, ROSE will encounter an unknown Clang IR node and can't continue.
 
 ```.term1
-cd $ROSE_BUILD/src
 rose-compiler hello-world.c -o hello-world
 ```
 
