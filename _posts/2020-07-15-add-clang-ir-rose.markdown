@@ -54,20 +54,91 @@ By default, ROSE compiler with Clang frontend can't compile this example due to 
 rose-compiler hello-world.c -o hello-world
 ```
 
-Using meatadirective, the same code can be written as follows:
-```
-// metadirective supports runtime adaptation using a single copy of code
-int v1[N], v2[N], v3[N];
-#pragma omp target map(to:v1,v2) map(from:v3)
-  #pragma omp metadirective \
-     when(device={arch(nvptx)}: target teams distribute parallel loop)\
-     default(target parallel loop)
-  for (int i= 0; i< N; i++) 
-     v3[i] = v1[i] * v2[i];
+The following error will be thrown by ROSE.
 
 ```
+...
+Traverse(clang::Decl : 0x21130f0 : _IO_FILE_plus)  visit done : node = 0x7fea7e2628e8
+Unknown declacaration kind: Var !
+rose-compiler: /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang-frontend-decl.cpp:317: virtual SgNode *ClangToSageTranslator::Traverse(clang::Decl *): Assertion `false' failed.
+Aborted (core dumped)
+```
 
-For more information about metadirective, please consult the OpenMP 5.0 specification.  
+The unknown `Var` declaration refers to `clang::Decl::Var`. After checking the specified line 317 in `clang-frontend-decl.cpp`. We can it is a switch-case statement and this unknown Clang IR falls to the default case that indicates an error.
+Therefore, a handler has to be added in the switch-case statement to tell ROSE how to deal with this Clang IR.
+
+To do that, we insert the following code right above the default case at line 315 in that statement.
+```
+case clang::Decl::Var:
+    ret_status = VisitVarDecl((clang::VarDecl *)decl, &result);
+    break;
+```
+
+```.term1
+vim /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang-frontend-decl.cpp
+```
+
+
+After making the modification, we can recompile ROSE to see whether it works now.
+
+```.term1
+cd $ROSE_BUILD
+make core -j4
+make install-core
+cd ~
+rose-compiler hello-world.c -o hello-world
+```
+
+The compilation still failed and ROSE complains that another Clang IR is unknown.
+
+```
+...
+ClangToSageTranslator::VisitCompoundStmt
+Unknown statement kind: CallExpr !
+rose-compiler: /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang-frontend-stmt.cpp:489: virtual SgNode *ClangToSageTranslator::Traverse(clang::Stmt *): Assertion `false' failed.
+Aborted (core dumped)
+```
+
+In the file mentioned in error information, we can find out that it's a smilar situation, which is the switch statement doesn't have a valid case for this Clang IR.
+Therefore, we need to add the corresponding case section as follows.
+
+```
+case clang::Stmt::CallExprClass:
+    ret_status = VisitCallExpr((clang::CallExpr *)stmt, &result);
+    break;
+```
+
+```.term1
+vim /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang-frontend-stmt.cpp
+```
+
+Again, we need to recompiler ROSE to see the result.
+
+```.term1
+cd $ROSE_BUILD
+make core -j4
+make install-core
+cd ~
+rose-compiler hello-world.c -o hello-world
+```
+
+The compilation still failed and a new unknown Clang IR appears.
+
+```
+...
+ClangToSageTranslator::VisitCallExpr
+ClangToSageTranslator::VisitImplicitCastExpr
+ClangToSageTranslator::VisitDeclRefExpr
+Lookup symbol for: "printf"
+ClangToSageTranslator::VisitFunctionProtoType
+ClangToSageTranslator::VisitType
+ClangToSageTranslator::VisitExpr
+ClangToSageTranslator::VisitValueStmt
+rose-compiler: /home/freecc/source/rose_src/src/frontend/CxxFrontend/Clang/clang-frontend-stmt.cpp:1488: virtual bool ClangToSageTranslator::VisitValueStmt(clang::ValueStmt *, SgNode **): Assertion `FAIL_TODO == 0' failed.
+Aborted (core dumped)
+```
+
+
 
 ---
 
